@@ -40,6 +40,9 @@ function SignaturePad(canvas, options) {
   };
 
   this._handleMouseMove = function (event) {
+    // Prevent scrolling.
+    event.stopPropagation();
+
     if (self._mouseButtonDown) {
       self._strokeMoveUpdate(event);
     }
@@ -54,7 +57,7 @@ function SignaturePad(canvas, options) {
 
   this._handleTouchStart = function (event) {
     // Prevent scrolling.
-    event.preventDefault();
+    event.stopPropagation();
 
     if (event.targetTouches.length === 1) {
       const touch = event.changedTouches[0];
@@ -64,7 +67,7 @@ function SignaturePad(canvas, options) {
 
   this._handleTouchMove = function (event) {
     // Prevent scrolling.
-    event.preventDefault();
+    event.stopPropagation();
 
     const touch = event.targetTouches[0];
     self._strokeMoveUpdate(touch);
@@ -73,7 +76,7 @@ function SignaturePad(canvas, options) {
   this._handleTouchEnd = function (event) {
     const wasCanvasTouched = event.target === self._canvas;
     if (wasCanvasTouched) {
-      event.preventDefault();
+      event.stopPropagation();
       self._strokeEnd(event);
     }
   };
@@ -324,8 +327,8 @@ SignaturePad.prototype._strokeWidth = function (velocity) {
 SignaturePad.prototype._drawPoint = function (x, y, size) {
   const ctx = this._ctx;
 
-  ctx.moveTo(x, y);
-  ctx.arc(x, y, size, 0, 2 * Math.PI, false);
+  ctx.arc(Math.floor(x), Math.floor(y), Math.floor(size), 0, 2 * Math.PI, false);
+  // ctx.rect(Math.floor(x), Math.floor(y), Math.floor(size), Math.floor(size));
   this._isEmpty = false;
 };
 
@@ -336,7 +339,7 @@ SignaturePad.prototype._drawCurve = function (curve, startWidth, endWidth) {
 
   ctx.beginPath();
 
-  for (let i = 0; i < drawSteps; i += 1) {
+  for (let i = 0; i < drawSteps; i += 2) {
     // Calculate the Bezier (x, y) coordinate for this step.
     const t = i / drawSteps;
     const tt = t * t;
